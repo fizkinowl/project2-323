@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <stack>
+#include <map>
 
 using namespace std;
 
@@ -13,6 +14,7 @@ string input = "";
 int token = 0;
 
 char terminals[] = {'a','+','-','*','/','(',')'};
+map<std::pair<char,char>,string> table;
 
 bool isTerminal(char t) {
     for(char i: terminals) {
@@ -21,6 +23,25 @@ bool isTerminal(char t) {
         }
     }
     return false;
+}
+
+void fillTable() {
+    table[make_pair('E','a')] = "TQ";
+    table[make_pair('E','(')] = "TQ";
+    table[make_pair('Q','+')] = "+TQ";
+    table[make_pair('Q','-')] = "-TQ";
+    table[make_pair('T','a')] = "FR";
+    table[make_pair('T','(')] = "FR";
+    table[make_pair('R','+')] = "e";
+    table[make_pair('R','-')] = "e";
+    table[make_pair('R','*')] = "*FR";
+    table[make_pair('R','/')] = "/FR";
+    table[make_pair('R',')')] = "e";
+    table[make_pair('R','$')] = "e";
+    table[make_pair('Q',')')] = "e";
+    table[make_pair('Q','$')] = "e";
+    table[make_pair('F','a')] = "e";
+    table[make_pair('F','(')] = "(E)";
 }
 
 void E() {
@@ -39,14 +60,6 @@ void F(){
 
 }
 
-int main(int argc, char* argv[]) {
-    pile.push('$');
-    pile.push('E');
-    for(int i = 1; i < argc; i++) {
-        input += argv[i];
-    }
-}
-
 bool driver() {
     while(pile.top() != '$') {
         char t = pile.top();
@@ -59,13 +72,25 @@ bool driver() {
                 return false;
             }
         } else {
-            if(true) { //if table t,i has an entry then create that.
+            if(table.count(make_pair(t,i)) == 1) {
                 pile.pop();
-                pile.push('t'); //push the result of table t,i
+                string val = table[make_pair(t,i)];
+                for(int i = 0; i < table.size(); i++) {
+                    pile.push(val[i]);
+                }
             } else {
                 return false;
             }
         }
     }
     return true;
+}
+
+int main(int argc, char* argv[]) {
+    pile.push('$');
+    pile.push('E');
+    for(int i = 1; i < argc; i++) {
+        input += argv[i];
+    }
+    cout << driver() << '\n';
 }
