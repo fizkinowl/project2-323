@@ -12,13 +12,12 @@ using namespace std;
 stack<char> pile;
 string input = "";
 int token = 0;
-
-char terminals[] = {'a','+','-','*','/','(',')'};
 map<std::pair<char,char>,string> table;
 
 bool isTerminal(char t) {
-    for(char i: terminals) {
-        if(t == i) {
+    char terminals[] = {'a','+','-','*','/','(',')'};
+    for(char term: terminals) {
+        if(t == term) {
             return true;
         }
     }
@@ -32,15 +31,15 @@ void fillTable() {
     table[make_pair('Q','-')] = "-TQ";
     table[make_pair('T','a')] = "FR";
     table[make_pair('T','(')] = "FR";
-    table[make_pair('R','+')] = "e";
-    table[make_pair('R','-')] = "e";
+    table[make_pair('R','+')] = "";
+    table[make_pair('R','-')] = "";
     table[make_pair('R','*')] = "*FR";
     table[make_pair('R','/')] = "/FR";
-    table[make_pair('R',')')] = "e";
-    table[make_pair('R','$')] = "e";
-    table[make_pair('Q',')')] = "e";
-    table[make_pair('Q','$')] = "e";
-    table[make_pair('F','a')] = "e";
+    table[make_pair('R',')')] = "";
+    table[make_pair('R','$')] = "";
+    table[make_pair('Q',')')] = "";
+    table[make_pair('Q','$')] = "";
+    table[make_pair('F','a')] = "a";
     table[make_pair('F','(')] = "(E)";
 }
 
@@ -64,21 +63,24 @@ bool driver() {
     while(pile.top() != '$') {
         char t = pile.top();
         char i = input[token];
+        cout<<t<<','<<i<<'\n';
         if(isTerminal(t)) {
             if(t == i) {
                 pile.pop();
                 token++;
             } else {
+                cout << "terminal doesnt match" << '\n';
                 return false;
             }
         } else {
             if(table.count(make_pair(t,i)) == 1) {
                 pile.pop();
                 string val = table[make_pair(t,i)];
-                for(int i = 0; i < table.size(); i++) {
-                    pile.push(val[i]);
+                for(int j = val.size()-1; j >= 0; j--) {
+                    pile.push(val.at(j));
                 }
             } else {
+                cout << "no table exists" << '\n';
                 return false;
             }
         }
@@ -91,6 +93,8 @@ int main(int argc, char* argv[]) {
     pile.push('E');
     for(int i = 1; i < argc; i++) {
         input += argv[i];
+        cout << input << '\n';
     }
+    fillTable();
     cout << driver() << '\n';
 }
