@@ -43,20 +43,65 @@ void fillTable() {
     table[make_pair('F','(')] = "(E)";
 }
 
-void E() {
+void T();
+void Q();
+void F();
+void R();
 
+void E() {
+    T();  
+    Q();  
 }
 
 void T() {
-
+    F();  
+    R();  
 }
 
 void Q() {
-
+    if (input[token] == '+') {
+        token++;
+        T();  // Call the T() function to derive T
+        Q();  // Call the Q() function recursively
+    } else if (input[token] == '-') {
+        token++;
+        T();  // Call the T() function to derive T
+        Q();  // Call the Q() function recursively
+    } else {
+        // Q can derive (epsilon), do nothing
+    }
 }
 
 void F(){
+    if (input[token] == 'a') {
+        token++;  // Consume 'a'
+    } else if (input[token] == '(') {
+        token++;  // Consume '('
+        E();      // Call E() to derive E
+        if (input[token] == ')') {
+            token++;  // Consume ')'
+        } else {
+            cout << "Error: Missing closing parenthesis ')'." << endl;
+            throw std::runtime_error("Syntax error");
+        }
+    } else {
+        cout << "Error: Expected 'a' or '('." << endl;
+        throw std::runtime_error("Syntax error");
+    }
+}
 
+void R() {
+    if (input[token] == '*') {
+        token++;  // Consume '*'
+        F();      // Call F() to derive F
+        R();      // Call R() recursively to handle additional *FR productions
+    } else if (input[token] == '/') {
+        token++;  // Consume '/'
+        F();      // Call F() to derive F
+        R();      // Call R() recursively to handle additional /FR productions
+    } else {
+        // R can derive (epsilon), do nothing
+    }
 }
 
 bool driver() {
